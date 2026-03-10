@@ -7,14 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .loader {
-            border-top-color: #ef4444;
-            animation: spinner 1.5s linear infinite;
-        }
-        @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Estilo para o quadro de assinatura */
+        #signature-pad { border: 2px dashed #cbd5e1; border-radius: 0.5rem; background-color: #f8fafc; cursor: crosshair; touch-action: none; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
@@ -28,102 +24,144 @@
         </button>
     </header>
 
-    <main class="container mx-auto p-4 max-w-3xl">
-        
-        <div id="loading" class="fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center hidden">
+    <main class="container mx-auto p-4 max-w-4xl">
+        <div id="loading" class="fixed inset-0 bg-white/90 z-50 flex flex-col items-center justify-center hidden">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16 mb-4"></div>
             <p id="loading-text" class="text-lg font-semibold text-gray-700">Processando...</p>
         </div>
 
         <section id="dashboardView">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold">Registros Recentes</h2>
-                <button onclick="abrirFormulario()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center gap-2 transition">
-                    <i class="ph ph-plus-circle text-xl"></i> Novo Registro
+                <h2 class="text-2xl font-semibold">Relatórios Mensais</h2>
+                <button onclick="abrirFormulario()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center gap-2">
+                    <i class="ph ph-file-plus text-xl"></i> Nova Inspeção
                 </button>
             </div>
-            
-            <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                </div>
+            <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
         <section id="formView" class="hidden bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Nova Inspeção</h2>
-            
-            <form id="inspecaoForm" onsubmit="enviarFormulario(event)">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Inspetor</label>
-                        <input type="text" id="nome" required class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-red-500 focus:border-red-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
-                        <input type="date" id="data" required class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-red-500 focus:border-red-500">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número do Extintor</label>
-                        <input type="number" id="numero" required placeholder="Ex: 15" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-red-500 focus:border-red-500">
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-b pb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Inspetor (Brigadista)</label>
+                    <input type="text" id="nome" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-red-500 focus:border-red-500">
                 </div>
-
-                <div class="bg-gray-50 p-4 rounded-md mb-6">
-                    <p class="text-sm text-gray-500 mb-4"><i class="ph ph-info"></i> Selecione o status de cada item.</p>
-                    
-                    <div id="perguntasContainer" class="space-y-3">
-                        </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Data da Inspeção</label>
+                    <input type="date" id="data" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-red-500 focus:border-red-500">
                 </div>
+            </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Observações (Obrigatório se houver reprovação)</label>
-                    <textarea id="observacoes" rows="3" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-red-500 focus:border-red-500" placeholder="Se algum item foi reprovado (X), descreva o que houve..."></textarea>
+            <div class="bg-gray-50 p-4 rounded-md mb-6 border border-gray-200">
+                <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2"><i class="ph ph-plus-circle"></i> Adicionar Extintor à Lista</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Número do Extintor</label>
+                    <input type="number" id="numeroAtual" placeholder="Ex: 01" class="w-full md:w-1/3 border-gray-300 rounded-md shadow-sm p-2 border">
                 </div>
-
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition text-lg">
-                    Enviar Inspeção e Gerar Relatório
+                <p class="text-sm text-gray-500 mb-2">Por padrão, todos os itens estão como <b>OK</b>. Altere apenas se houver problema (X ou N/A).</p>
+                <div id="perguntasContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
+                    </div>
+                <button type="button" onclick="adicionarExtintor()" class="bg-gray-800 hover:bg-black text-white py-2 px-4 rounded shadow transition">
+                    Inserir na Lista
                 </button>
-            </form>
-        </section>
+            </div>
 
+            <div class="mb-6">
+                <h3 class="font-bold text-lg mb-2">Extintores Verificados (<span id="contadorExtintores">0</span>)</h3>
+                <div id="listaExtintores" class="bg-white border rounded-md p-2 min-h-[50px] flex flex-wrap gap-2">
+                    <span class="text-gray-400 text-sm p-2">Nenhum extintor adicionado ainda.</span>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Observações Gerais</label>
+                <textarea id="observacoes" rows="2" class="w-full border-gray-300 rounded-md shadow-sm p-2 border" placeholder="Justifique as reprovações aqui..."></textarea>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Assinatura do Inspetor</label>
+                <canvas id="signature-pad" class="w-full h-40"></canvas>
+                <button type="button" onclick="limparAssinatura()" class="text-sm text-red-600 mt-1 hover:underline">Limpar Assinatura</button>
+            </div>
+
+            <button onclick="enviarInspecaoFinal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition text-lg flex justify-center items-center gap-2">
+                <i class="ph ph-check-circle"></i> Gerar Relatório Mensal PDF
+            </button>
+        </section>
     </main>
 
     <script>
         // ==========================================
-        // COLE SUA URL DO APPS SCRIPT AQUI ABAIXO
+        // COLE SUA NOVA URL DO APPS SCRIPT AQUI ABAIXO
         // ==========================================
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXFLU76oQuWCLgcLWSki0u9qQZuHNxWDljmXcx0w6HyWHW1TEHhTFut4ebZxoqf3HFwQ/exec';
 
-        const perguntas = [
-            "1. Rótulo e selo do (INMETRO) legíveis",
-            "2. Validade da recarga e teste hidrostático",
-            "3. Ponteiro do manômetro na demarcação verde",
-            "4. Lacre",
-            "5. Pino (trava) de segurança",
-            "6. Condições do mangote (mangueira)",
-            "7. Condições da válvula (gatilho)",
-            "8. Informações na ficha do extintor",
-            "9. Apresentação, limpeza, pintura",
-            "10. Verificar se está obstruído",
-            "11. Sinalização",
-            "12. Suporte"
+        const perguntasTextos = [
+            "1. Rótulo/Selo", "2. Validade/Teste", "3. Manômetro", "4. Lacre",
+            "5. Pino trava", "6. Mangote", "7. Válvula", "8. Ficha",
+            "9. Limpeza/Pintura", "10. Obstruído", "11. Sinalização", "12. Suporte"
         ];
 
-        // Inicialização
+        let extintoresVerificados = [];
+        
+        // Configuração da Assinatura
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        function resizeCanvas() {
+            const ratio =  Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Eventos de Desenho (Mouse e Touch)
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        const startDrawing = (e) => { e.preventDefault(); isDrawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
+        const draw = (e) => { e.preventDefault(); if (!isDrawing) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
+        const stopDrawing = () => { isDrawing = false; ctx.closePath(); };
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function limparAssinatura() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
             renderizarPerguntas();
             carregarRegistros();
+            document.getElementById('data').valueAsDate = new Date();
         });
 
         function renderizarPerguntas() {
             const container = document.getElementById('perguntasContainer');
-            perguntas.forEach((pergunta, index) => {
+            perguntasTextos.forEach((texto, index) => {
                 const num = index + 1;
                 container.innerHTML += `
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded shadow-sm border">
-                        <span class="text-sm font-medium mb-2 sm:mb-0 w-full sm:w-2/3">${pergunta}</span>
-                        <select id="item${num}" class="w-full sm:w-1/3 border-gray-300 rounded p-1 border text-sm" required>
-                            <option value="OK">OK (Aprovado)</option>
-                            <option value="X">X (Reprovado)</option>
+                    <div class="flex items-center justify-between bg-white p-2 border rounded shadow-sm">
+                        <span class="text-xs font-medium w-1/2">${texto}</span>
+                        <select id="item${num}" class="w-1/2 border-gray-300 rounded p-1 text-xs border bg-green-50">
+                            <option value="OK" selected>OK</option>
+                            <option value="X">X</option>
                             <option value="N/A">N/A</option>
                         </select>
                     </div>
@@ -131,13 +169,61 @@
             });
         }
 
-        // Navegação de Telas
+        function adicionarExtintor() {
+            const numero = document.getElementById('numeroAtual').value;
+            if(!numero) { alert('Digite o número do extintor!'); return; }
+
+            let ext = { numero: numero };
+            for(let i=1; i<=12; i++) {
+                ext[`item${i}`] = document.getElementById(`item${i}`).value;
+                // Reseta visualmente para o próximo
+                document.getElementById(`item${i}`).value = 'OK'; 
+                document.getElementById(`item${i}`).classList.replace('bg-red-50', 'bg-green-50');
+            }
+            
+            extintoresVerificados.push(ext);
+            atualizarListaExtintores();
+            document.getElementById('numeroAtual').value = '';
+            document.getElementById('numeroAtual').focus();
+        }
+
+        // Muda a cor do select se for X para chamar atenção
+        document.getElementById('perguntasContainer').addEventListener('change', (e) => {
+            if(e.target.tagName === 'SELECT') {
+                if(e.target.value === 'X') { e.target.classList.add('bg-red-50', 'text-red-700'); e.target.classList.remove('bg-green-50'); }
+                else { e.target.classList.add('bg-green-50'); e.target.classList.remove('bg-red-50', 'text-red-700'); }
+            }
+        });
+
+        function atualizarListaExtintores() {
+            const lista = document.getElementById('listaExtintores');
+            document.getElementById('contadorExtintores').innerText = extintoresVerificados.length;
+            
+            if(extintoresVerificados.length === 0) {
+                lista.innerHTML = '<span class="text-gray-400 text-sm p-2">Nenhum extintor adicionado ainda.</span>';
+                return;
+            }
+
+            lista.innerHTML = extintoresVerificados.map((ext, index) => `
+                <div class="bg-gray-100 border border-gray-300 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                    Ext: ${ext.numero}
+                    <button onclick="removerExtintor(${index})" class="text-red-500 hover:text-red-700"><i class="ph ph-x-circle"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function removerExtintor(index) {
+            extintoresVerificados.splice(index, 1);
+            atualizarListaExtintores();
+        }
+
         function abrirFormulario() {
             document.getElementById('dashboardView').classList.add('hidden');
             document.getElementById('formView').classList.remove('hidden');
             document.getElementById('btnVoltar').classList.remove('hidden');
-            document.getElementById('inspecaoForm').reset();
-            document.getElementById('data').valueAsDate = new Date();
+            extintoresVerificados = [];
+            atualizarListaExtintores();
+            limparAssinatura();
         }
 
         function voltarParaDashboard() {
@@ -149,107 +235,86 @@
         function setLoading(isLoading, text = 'Processando...') {
             const loader = document.getElementById('loading');
             document.getElementById('loading-text').innerText = text;
-            if (isLoading) loader.classList.remove('hidden');
-            else loader.classList.add('hidden');
+            isLoading ? loader.classList.remove('hidden') : loader.classList.add('hidden');
         }
 
-        // Fetch de Registros
         async function carregarRegistros() {
-            setLoading(true, 'Carregando painel...');
+            setLoading(true, 'Carregando relatórios...');
             const container = document.getElementById('cardsContainer');
-            
             try {
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
-                
                 container.innerHTML = '';
                 if(data.length === 0) {
-                    container.innerHTML = `<p class="text-gray-500 col-span-2 text-center py-6">Nenhum registro encontrado.</p>`;
+                    container.innerHTML = `<p class="text-gray-500 col-span-2 text-center py-6">Nenhum relatório encontrado.</p>`;
                 } else {
                     data.forEach(reg => {
                         container.innerHTML += `
-                            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center">
                                 <div>
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h3 class="font-bold text-lg text-gray-800">Extintor Nº ${reg.numero}</h3>
-                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"><i class="ph ph-calendar"></i> ${reg.data}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-600 mb-4"><i class="ph ph-user"></i> ${reg.nome}</p>
+                                    <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2"><i class="ph ph-calendar"></i> ${reg.data}</h3>
+                                    <p class="text-sm text-gray-600"><i class="ph ph-user"></i> ${reg.nome}</p>
                                 </div>
-                                <a href="${reg.link}" target="_blank" class="text-center bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold py-2 px-4 rounded transition flex justify-center items-center gap-2">
-                                    <i class="ph ph-file-pdf text-red-600"></i> Ver Relatório
+                                <a href="${reg.link}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-700 p-3 rounded-full transition" title="Ver Relatório PDF">
+                                    <i class="ph ph-file-pdf text-2xl"></i>
                                 </a>
                             </div>
                         `;
                     });
                 }
             } catch (error) {
-                container.innerHTML = `<p class="text-red-500 col-span-2 text-center py-6">Erro ao carregar dados. Verifique a URL do App Script.</p>`;
-            } finally {
-                setLoading(false);
-            }
+                container.innerHTML = `<p class="text-red-500 col-span-2 text-center py-6">Erro ao carregar dados.</p>`;
+            } finally { setLoading(false); }
         }
 
-        // Submissão do Formulário
-        async function enviarFormulario(event) {
-            event.preventDefault();
-            
-            // Validação simples para observações se houver reprovação
+        async function enviarInspecaoFinal() {
+            const nome = document.getElementById('nome').value;
+            const data = document.getElementById('data').value;
             const observacoes = document.getElementById('observacoes').value;
-            let temReprovacao = false;
-            for(let i=1; i<=12; i++){
-                if(document.getElementById(`item${i}`).value === 'X') temReprovacao = true;
-            }
-            if(temReprovacao && observacoes.trim() === '') {
-                alert('Você marcou um item como Reprovado (X). É obrigatório preencher o campo de Observações com o número do item e o que houve.');
-                return;
+            
+            if(!nome || !data) { alert('Preencha o nome do inspetor e a data.'); return; }
+            if(extintoresVerificados.length === 0) { alert('Adicione pelo menos um extintor na lista antes de gerar o relatório!'); return; }
+
+            // Verifica se o canvas está em branco
+            const canvasVazio = document.createElement('canvas');
+            canvasVazio.width = canvas.width;
+            canvasVazio.height = canvas.height;
+            const isAssinado = canvas.toDataURL() !== canvasVazio.toDataURL();
+            
+            let assinaturaBase64 = null;
+            if(isAssinado) {
+                assinaturaBase64 = canvas.toDataURL('image/png');
             }
 
-            setLoading(true, 'Gerando relatório e salvando no Drive...');
+            setLoading(true, 'Montando relatório em PDF com a tabela...');
 
             const payload = {
-                nome: document.getElementById('nome').value,
-                data: document.getElementById('data').value,
-                numero: document.getElementById('numero').value,
+                nome: nome,
+                data: data,
                 observacoes: observacoes,
-                item1: document.getElementById('item1').value,
-                item2: document.getElementById('item2').value,
-                item3: document.getElementById('item3').value,
-                item4: document.getElementById('item4').value,
-                item5: document.getElementById('item5').value,
-                item6: document.getElementById('item6').value,
-                item7: document.getElementById('item7').value,
-                item8: document.getElementById('item8').value,
-                item9: document.getElementById('item9').value,
-                item10: document.getElementById('item10').value,
-                item11: document.getElementById('item11').value,
-                item12: document.getElementById('item12').value
+                extintores: extintoresVerificados,
+                assinatura: assinaturaBase64
             };
 
             try {
-                // Modo no-cors é evitado aqui usando stringificação simples e permitindo que o Apps Script responda
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
                 
                 const result = await response.json();
-                
                 if (result.status === "success") {
-                    alert('Inspeção registrada com sucesso! O relatório foi gerado.');
+                    alert('Relatório Mensal gerado com sucesso!');
                     voltarParaDashboard();
-                    carregarRegistros(); // Atualiza a tela inicial
+                    carregarRegistros();
                 } else {
                     alert('Erro ao salvar: ' + result.message);
                 }
             } catch (error) {
-                // Em alguns casos de CORS bloqueado no retorno, o fetch cai no catch, mas o script executa.
-                alert('Os dados foram enviados. A tela será atualizada para confirmar se o relatório foi gerado.');
+                alert('Dados enviados. A tela será atualizada para confirmar a geração do relatório.');
                 voltarParaDashboard();
                 carregarRegistros();
-            } finally {
-                setLoading(false);
-            }
+            } finally { setLoading(false); }
         }
     </script>
 </body>

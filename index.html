@@ -10,7 +10,13 @@
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         /* Estilo para o quadro de assinatura */
-        #signature-pad { border: 2px dashed #cbd5e1; border-radius: 0.5rem; background-color: #f8fafc; cursor: crosshair; touch-action: none; }
+        #signature-pad { 
+            border: 2px dashed #cbd5e1; 
+            border-radius: 0.5rem; 
+            background-color: #f8fafc; 
+            cursor: crosshair; 
+            touch-action: none; /* Importante para dispositivos móveis */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
@@ -53,14 +59,12 @@
             </div>
 
             <div class="bg-gray-50 p-4 rounded-md mb-6 border border-gray-200">
-                <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2"><i class="ph ph-plus-circle"></i> Adicionar Extintor à Lista</h3>
+                <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2"><i class="ph ph-plus-circle"></i> Adicionar Extintor</h3>
                 <div class="mb-4">
                     <label class="block text-sm font-bold text-gray-700 mb-1">Número do Extintor</label>
                     <input type="number" id="numeroAtual" placeholder="Ex: 01" class="w-full md:w-1/3 border-gray-300 rounded-md shadow-sm p-2 border">
                 </div>
-                <p class="text-sm text-gray-500 mb-2">Por padrão, todos os itens estão como <b>OK</b>. Altere apenas se houver problema (X ou N/A).</p>
-                <div id="perguntasContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
-                    </div>
+                <div id="perguntasContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-4"></div>
                 <button type="button" onclick="adicionarExtintor()" class="bg-gray-800 hover:bg-black text-white py-2 px-4 rounded shadow transition">
                     Inserir na Lista
                 </button>
@@ -79,9 +83,9 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-bold text-gray-700 mb-1">Assinatura do Inspetor</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Assinatura do Inspetor <span class="text-red-500">*</span></label>
                 <canvas id="signature-pad" class="w-full h-40"></canvas>
-                <button type="button" onclick="limparAssinatura()" class="text-sm text-red-600 mt-1 hover:underline">Limpar Assinatura</button>
+                <button type="button" onclick="limparAssinatura()" class="text-sm text-red-600 mt-1 hover:underline font-medium">Limpar Assinatura</button>
             </div>
 
             <button onclick="enviarInspecaoFinal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition text-lg flex justify-center items-center gap-2">
@@ -91,10 +95,7 @@
     </main>
 
     <script>
-        // ==========================================
-        // COLE SUA NOVA URL DO APPS SCRIPT AQUI ABAIXO
-        // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXFLU76oQuWCLgcLWSki0u9qQZuHNxWDljmXcx0w6HyWHW1TEHhTFut4ebZxoqf3HFwQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXFLU76oQuWCLgcLWSki0u9qQZuHNxWDljmXcx0w6HyWHW1TEHhTFut4ebZxoqf3HFwQ/exec'; // <--- Não esqueça de colocar sua URL
 
         const perguntasTextos = [
             "1. Rótulo/Selo", "2. Validade/Teste", "3. Manômetro", "4. Lacre",
@@ -103,25 +104,25 @@
         ];
 
         let extintoresVerificados = [];
+        let foiAssinado = false; // Flag para validar a assinatura
         
-        // Configuração da Assinatura
         const canvas = document.getElementById('signature-pad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
         function resizeCanvas() {
-            const ratio =  Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            ctx.scale(ratio, ratio);
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#000';
+            // Pequeno atraso para garantir que o elemento esteja visível no DOM
+            setTimeout(() => {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#000';
+            }, 100);
         }
 
-        window.addEventListener('resize', resizeCanvas);
-
-        // Eventos de Desenho (Mouse e Touch)
+        // Eventos de Desenho
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -129,24 +130,38 @@
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        const startDrawing = (e) => { e.preventDefault(); isDrawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
-        const draw = (e) => { e.preventDefault(); if (!isDrawing) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
+        const startDrawing = (e) => { 
+            e.preventDefault(); 
+            isDrawing = true; 
+            const pos = getPos(e); 
+            ctx.beginPath(); 
+            ctx.moveTo(pos.x, pos.y); 
+        };
+
+        const draw = (e) => { 
+            e.preventDefault(); 
+            if (!isDrawing) return; 
+            const pos = getPos(e); 
+            ctx.lineTo(pos.x, pos.y); 
+            ctx.stroke(); 
+            foiAssinado = true; // Marca que o usuário desenhou algo
+        };
+
         const stopDrawing = () => { isDrawing = false; ctx.closePath(); };
 
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
         canvas.addEventListener('touchstart', startDrawing, {passive: false});
         canvas.addEventListener('touchmove', draw, {passive: false});
         canvas.addEventListener('touchend', stopDrawing);
 
         function limparAssinatura() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            foiAssinado = false;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            resizeCanvas();
             renderizarPerguntas();
             carregarRegistros();
             document.getElementById('data').valueAsDate = new Date();
@@ -158,7 +173,7 @@
                 const num = index + 1;
                 container.innerHTML += `
                     <div class="flex items-center justify-between bg-white p-2 border rounded shadow-sm">
-                        <span class="text-xs font-medium w-1/2">${texto}</span>
+                        <span class="text-[10px] font-medium w-1/2">${texto}</span>
                         <select id="item${num}" class="w-1/2 border-gray-300 rounded p-1 text-xs border bg-green-50">
                             <option value="OK" selected>OK</option>
                             <option value="X">X</option>
@@ -176,9 +191,8 @@
             let ext = { numero: numero };
             for(let i=1; i<=12; i++) {
                 ext[`item${i}`] = document.getElementById(`item${i}`).value;
-                // Reseta visualmente para o próximo
                 document.getElementById(`item${i}`).value = 'OK'; 
-                document.getElementById(`item${i}`).classList.replace('bg-red-50', 'bg-green-50');
+                document.getElementById(`item${i}`).className = 'w-1/2 border-gray-300 rounded p-1 text-xs border bg-green-50';
             }
             
             extintoresVerificados.push(ext);
@@ -187,23 +201,13 @@
             document.getElementById('numeroAtual').focus();
         }
 
-        // Muda a cor do select se for X para chamar atenção
-        document.getElementById('perguntasContainer').addEventListener('change', (e) => {
-            if(e.target.tagName === 'SELECT') {
-                if(e.target.value === 'X') { e.target.classList.add('bg-red-50', 'text-red-700'); e.target.classList.remove('bg-green-50'); }
-                else { e.target.classList.add('bg-green-50'); e.target.classList.remove('bg-red-50', 'text-red-700'); }
-            }
-        });
-
         function atualizarListaExtintores() {
             const lista = document.getElementById('listaExtintores');
             document.getElementById('contadorExtintores').innerText = extintoresVerificados.length;
-            
             if(extintoresVerificados.length === 0) {
                 lista.innerHTML = '<span class="text-gray-400 text-sm p-2">Nenhum extintor adicionado ainda.</span>';
                 return;
             }
-
             lista.innerHTML = extintoresVerificados.map((ext, index) => `
                 <div class="bg-gray-100 border border-gray-300 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
                     Ext: ${ext.numero}
@@ -224,6 +228,7 @@
             extintoresVerificados = [];
             atualizarListaExtintores();
             limparAssinatura();
+            resizeCanvas(); // CHAVE: Redimensiona o canvas agora que ele está visível!
         }
 
         function voltarParaDashboard() {
@@ -255,7 +260,7 @@
                                     <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2"><i class="ph ph-calendar"></i> ${reg.data}</h3>
                                     <p class="text-sm text-gray-600"><i class="ph ph-user"></i> ${reg.nome}</p>
                                 </div>
-                                <a href="${reg.link}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-700 p-3 rounded-full transition" title="Ver Relatório PDF">
+                                <a href="${reg.link}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-700 p-3 rounded-full transition">
                                     <i class="ph ph-file-pdf text-2xl"></i>
                                 </a>
                             </div>
@@ -272,28 +277,19 @@
             const data = document.getElementById('data').value;
             const observacoes = document.getElementById('observacoes').value;
             
-            if(!nome || !data) { alert('Preencha o nome do inspetor e a data.'); return; }
-            if(extintoresVerificados.length === 0) { alert('Adicione pelo menos um extintor na lista antes de gerar o relatório!'); return; }
+            // Validações
+            if(!nome || !data) { alert('Preencha o nome do inspetor e a data!'); return; }
+            if(extintoresVerificados.length === 0) { alert('Adicione pelo menos um extintor na lista!'); return; }
+            if(!foiAssinado) { alert('A assinatura do inspetor é obrigatória para gerar o PDF!'); return; }
 
-            // Verifica se o canvas está em branco
-            const canvasVazio = document.createElement('canvas');
-            canvasVazio.width = canvas.width;
-            canvasVazio.height = canvas.height;
-            const isAssinado = canvas.toDataURL() !== canvasVazio.toDataURL();
-            
-            let assinaturaBase64 = null;
-            if(isAssinado) {
-                assinaturaBase64 = canvas.toDataURL('image/png');
-            }
-
-            setLoading(true, 'Montando relatório em PDF com a tabela...');
+            setLoading(true, 'Gerando PDF único...');
 
             const payload = {
                 nome: nome,
                 data: data,
                 observacoes: observacoes,
                 extintores: extintoresVerificados,
-                assinatura: assinaturaBase64
+                assinatura: canvas.toDataURL('image/png')
             };
 
             try {
@@ -301,17 +297,16 @@
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-                
                 const result = await response.json();
                 if (result.status === "success") {
                     alert('Relatório Mensal gerado com sucesso!');
                     voltarParaDashboard();
                     carregarRegistros();
                 } else {
-                    alert('Erro ao salvar: ' + result.message);
+                    alert('Erro: ' + result.message);
                 }
             } catch (error) {
-                alert('Dados enviados. A tela será atualizada para confirmar a geração do relatório.');
+                alert('Ocorreu um problema, mas verifique se o relatório aparece na lista em instantes.');
                 voltarParaDashboard();
                 carregarRegistros();
             } finally { setLoading(false); }
